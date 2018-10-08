@@ -9,19 +9,19 @@ namespace LYMG.FitnessApparatusDemo
     public abstract class PressureStatusBase
     {
         public string Text { get; set; }
-        public abstract void UpdateStatus(FitnessApparatus context);
+        public abstract void UpdateStatus(ApparatusStatusContext context);
     }
     public sealed class UnderPressure : PressureStatusBase
     {
         private bool isFirstUpdateStatus;
-        public UnderPressure(int pressureValue)
+        public UnderPressure(double pressureValue)
         {
             Text = $"有 {pressureValue}Kg 的压力";
             isFirstUpdateStatus = true;
         }
 
         // 有人站到健身设备上时屏幕切换到扫码二维码状态
-        public override void UpdateStatus(FitnessApparatus context)
+        public override void UpdateStatus(ApparatusStatusContext context)
         {
             if (!isFirstUpdateStatus) return;
             context.DisplayStatus = new DisplayQRCode();
@@ -38,7 +38,7 @@ namespace LYMG.FitnessApparatusDemo
             this.displayStatus = new DisplayAdvertisement(this);
         }
 
-        public override void UpdateStatus(FitnessApparatus context)
+        public override void UpdateStatus(ApparatusStatusContext context)
         {
             //  没有人站在健身仪器上时，播放广告
             context.DisplayStatus = this.displayStatus;

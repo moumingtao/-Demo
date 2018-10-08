@@ -18,53 +18,41 @@ namespace LYMG.FitnessApparatusDemo
     public partial class Form1 : Form
     {
         private readonly FitnessApparatus FitnessApparatus;// 健身仪器对象
+        private readonly Player Player;// 玩家对象，玩家的动作会修改健身仪器的状态
+
         public Form1()
         {
             InitializeComponent();
             FitnessApparatus = new FitnessApparatus();
-            // 开始时没有人站在健身仪器上面
-            FitnessApparatus.PressureStatus = new NoPressure();
-            // 开始的时候播放广告
-            FitnessApparatus.DisplayStatus = new DisplayAdvertisement(FitnessApparatus.PressureStatus);
+            this.Player = new Player() { Weight = 52 };
         }
 
         private void chkStandUp_CheckedChanged(object sender, EventArgs e)
         {
             if (chkStandUp.Checked)
             {
-                Random random = new Random();
-                int pressure = random.Next(50, 80);
-                FitnessApparatus.PressureStatus = new UnderPressure(pressure);
+                bool success = Player.StandUp(FitnessApparatus);
+                if (success) this.Text = "站到健身仪器上";
             }
             else
             {
-                FitnessApparatus.PressureStatus = new NoPressure();
+                var apparatus = Player.ComeDown();
+                if (apparatus != null) this.Text = "从健身仪器下来";
             }
         }
 
         private void btnScavenging_Click(object sender, EventArgs e)
         {
-            if (FitnessApparatus.DisplayStatus is DisplayQRCode qrCode)
-            {
-                qrCode.Scavenging(FitnessApparatus);
-            }
+            bool success = Player.ScanQRCode(FitnessApparatus);
+            this.Text = success ? "扫码成功" : "扫码失败";
         }
 
         private void globalTimer_Tick(object sender, EventArgs e)
         {
-            FitnessApparatus.DisplayStatus.UpdateStatus(FitnessApparatus);
-            FitnessApparatus.PressureStatus.UpdateStatus(FitnessApparatus);
+            FitnessApparatus.UpdateStatus();
 
-            lblDisplayState.Text = FitnessApparatus.DisplayStatus.Text;
-            lblPressureState.Text = FitnessApparatus.PressureStatus.Text;
+            lblDisplayState.Text = FitnessApparatus.DisplayText;
+            lblPressureState.Text = FitnessApparatus.PressureText;
         }
     }
-
-    #region 健身仪器状态上下文
-    public class FitnessApparatus
-    {
-        public DisplayStatusBase DisplayStatus { get; set; }
-        public PressureStatusBase PressureStatus { get; set; }
-    }
-    #endregion
 }

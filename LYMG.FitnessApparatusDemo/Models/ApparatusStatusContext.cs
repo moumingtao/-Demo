@@ -11,7 +11,7 @@ namespace LYMG.FitnessApparatusDemo
         private bool IsUpdated;
         private DisplayStatusBase _DisplayStatus;
         private PressureStatusBase _PressureStatus;
-
+        
         public DisplayStatusBase DisplayStatus
         {
             get => _DisplayStatus;
@@ -29,10 +29,13 @@ namespace LYMG.FitnessApparatusDemo
             set
             {
                 if (value == _PressureStatus) return;
+                _DisplayStatus?.OnPressureStatusChanging(this, _PressureStatus, value);
                 _PressureStatus = value;
                 IsUpdated = true;
             }
         }
+
+        public TimeSpan PropupNoPeopleTime { get; internal set; }
 
         public int UpdateStatus(int tryCount)
         {
@@ -40,7 +43,6 @@ namespace LYMG.FitnessApparatusDemo
             {
                 IsUpdated = false;
                 DisplayStatus?.UpdateStatus(this);
-                PressureStatus?.UpdateStatus(this);
                 if (!IsUpdated) return i;
             }
             throw new TimeoutException($"状态更新{tryCount}次都无法达到稳定，请修改状态切换机制");

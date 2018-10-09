@@ -8,17 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-/*
- 我的需求是这样的，我做一个健身仪器，没有用户站在上面是播放广告，用户站上去是扫码，
- 测试过程中用户下来就会提示并倒数15秒，倒数结束就结束测试返回广告页面，
- 还有些操作会要求弹窗并倒数一定秒数
-*/
+
 namespace LYMG.FitnessApparatusDemo
 {
     public partial class Form1 : Form
     {
         private readonly FitnessApparatus FitnessApparatus;// 健身仪器对象
-        private readonly Player Player;// 玩家对象，玩家的动作会修改健身仪器的状态
+        private readonly Player Player;// 玩家对象
 
         public Form1()
         {
@@ -27,6 +23,16 @@ namespace LYMG.FitnessApparatusDemo
             this.Player = new Player() { Weight = 52 };
         }
 
+        private void globalTimer_Tick(object sender, EventArgs e)
+        {
+            FitnessApparatus.UpdateStatus();
+
+            lblDisplayState.Text = FitnessApparatus.DisplayText;
+            lblPropup.Text = FitnessApparatus.PropupText;
+            lblPressureState.Text = FitnessApparatus.PressureText;
+        }
+
+        #region 模拟用户动作
         private void chkStandUp_CheckedChanged(object sender, EventArgs e)
         {
             if (chkStandUp.Checked)
@@ -46,13 +52,48 @@ namespace LYMG.FitnessApparatusDemo
             bool success = Player.ScanQRCode(FitnessApparatus);
             this.Text = success ? "扫码成功" : "扫码失败";
         }
+        #endregion
 
-        private void globalTimer_Tick(object sender, EventArgs e)
+        #region 模拟健身仪器动作
+        private void btnEndTest_Click(object sender, EventArgs e)
         {
-            FitnessApparatus.UpdateStatus();
-
-            lblDisplayState.Text = FitnessApparatus.DisplayText;
-            lblPressureState.Text = FitnessApparatus.PressureText;
+            if (FitnessApparatus.EndTest())
+                this.Text = "操作成功";
+            else
+                this.Text = "操作失败";
         }
+
+        private void btnShowDialogBox_Click(object sender, EventArgs e)
+        {
+            if (FitnessApparatus.ShowDialogBox())
+                this.Text = "操作成功";
+            else
+                this.Text = "操作失败";
+        }
+
+        private void btnCloseDialogBox_Click(object sender, EventArgs e)
+        {
+            if (FitnessApparatus.CloseDialogBox())
+                this.Text = "操作成功";
+            else
+                this.Text = "操作失败";
+        }
+
+        private void btnExitDialogBox_Click(object sender, EventArgs e)
+        {
+            if (FitnessApparatus.ExitDialogBox())
+                this.Text = "操作成功";
+            else
+                this.Text = "操作失败";
+        }
+        private void btnOnError_Click(object sender, EventArgs e)
+        {
+            if (FitnessApparatus.OnError())
+                this.Text = "操作成功";
+            else
+                this.Text = "操作失败";
+        }
+        #endregion
+
     }
 }
